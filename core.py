@@ -27,7 +27,7 @@ class CoreTester:
             for query in queries:
                 print(query)
             print("")
-            
+
     def run_tests(self):
         for table, queries in tqdm(self.test_queries.items()):
             self.test_results[table] = []
@@ -42,7 +42,9 @@ class CoreTester:
                     exception = True
                 if result:
                     # Test failed if result is not empty
-                    self.test_results[table].append((formatted_query, "Failed", result, exception))
+                    self.test_results[table].append(
+                        (formatted_query, "Failed", result, exception)
+                    )
                 else:
                     # Test passed if result is empty
                     self.test_results[table].append((formatted_query, "Passed", [], 0))
@@ -61,7 +63,7 @@ class CoreTester:
             report_lines.append(
                 f"Tests Passed: {GREEN}{passed}{RESET}, Tests Failed: {RED}{failed}{RESET}"
             )
-            if verbose:  
+            if verbose:
                 for query, status, data, _ in results:
                     color = GREEN if status == "Passed" else RED
                     report_lines.append(
@@ -73,10 +75,10 @@ class CoreTester:
             else:
                 for query, status, data, ex in results:
                     if status == "Failed":
-                        test_number = query.split(' ')[2]
-                        failed_query = query.split('\n')[1]
+                        test_number = query.split(" ")[2]
+                        failed_query = query.split("\n")[1]
                         report_lines.append(
-                            f"Failed test {test_number}\nQuery: \"{failed_query}\"\nStatus: {RED}{status}{RESET}"
+                            f'Failed test {test_number}\nQuery: "{failed_query}"\nStatus: {RED}{status}{RESET}'
                         )
                         if data and ex:
                             report_lines.append(f"Data: {data}")

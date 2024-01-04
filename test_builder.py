@@ -1,4 +1,3 @@
-import sqlalchemy
 import os
 from db_connection import Connection
 import re
@@ -43,12 +42,15 @@ class SqlTestBuilderInteractive:
         self.current_column = columns[choice]
 
     def get_next_file_index(self, directory):
-        test_files = [file for file in os.listdir(directory) if file.startswith("test_") and file.endswith(".sql")]
+        test_files = [
+            file
+            for file in os.listdir(directory)
+            if file.startswith("test_") and file.endswith(".sql")
+        ]
         if not test_files:
             return 1
 
-        return max(int(re.search(r'\d+', file).group()) for file in test_files) + 1
-
+        return max(int(re.search(r"\d+", file).group()) for file in test_files) + 1
 
     def save_tests(self, dir="tests/"):
         if not os.path.exists(dir):
@@ -59,12 +61,11 @@ class SqlTestBuilderInteractive:
             os.makedirs(table_dir)
 
         index = self.get_next_file_index(table_dir)
-        
+
         file_name = os.path.join(table_dir, f"test_{index}.sql")
         with open(file_name, "w") as file:
             file.write(f"-- Test {index} for {self.current_table}\n")
             file.write(self.last_test + ";\n")
-            
 
     def create_tests(self):
         while True:
@@ -78,13 +79,13 @@ class SqlTestBuilderInteractive:
             self.add_test(test_type - 1)
             if input("Add another test? (y/n): ") == "n":
                 break
-    
+
     def clear_screen(self):
-        print("\033[2J\033[H", end='')  # clear screen
-         
-    def format(self, string:str, key, value):
-       return string.replace("{" + key + "}", str(value))
-    
+        print("\033[2J\033[H", end="")  # clear screen
+
+    def format(self, string: str, key, value):
+        return string.replace("{" + key + "}", str(value))
+
     def add_test(self, test_type):
         if len(test_queries.keys()) < test_type:
             print("Invalid test type")
@@ -92,16 +93,14 @@ class SqlTestBuilderInteractive:
         query_template = list(test_queries.values())[test_type]
 
         query = query_template[0]
-        
+
         query = self.format(query, "table", self.current_table)
         query = self.format(query, "column", self.current_column)
         for variable, question_prompt in query_template[1].items():
             self.clear_screen()
             print("Query is:", query, end="\n\n")
-            query = self.format(query, variable, input(question_prompt + "\n"))             
+            query = self.format(query, variable, input(question_prompt + "\n"))
 
         self.tests[self.current_table].append(query)
         self.last_test = query
         self.save_tests()
-    
-

@@ -13,12 +13,12 @@ class SqlTestBuilderInteractive:
 
     def get_tables(self):
         return self.connection.execute_query(
-            "SELECT name FROM sqlite_master WHERE type='table';"
+            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name"
         )
 
     def get_columns(self, table_name):
-        result = self.connection.execute_query(f"PRAGMA table_info({table_name});")
-        return [row[1] for row in result]
+        result = self.connection.execute_query(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'")
+        return [row[0] for row in result]
 
     def select_table(self):
         tables = self.get_tables()

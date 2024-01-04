@@ -2,3 +2,5 @@
 /chinook.db
 /tests.zip
 /__pycache__
+config.py
+/tests

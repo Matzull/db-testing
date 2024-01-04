@@ -66,8 +66,10 @@ class CoreTester:
             if verbose:
                 for query, status, data, _ in results:
                     color = GREEN if status == "Passed" else RED
+                    test_number = query.split(" ")[2]
+                    query = query.split("\n")[1]
                     report_lines.append(
-                        f"Test Query: {query}\nStatus: {color}{status}{RESET}"
+                        f'Test Query: {test_number}\nQuery: "{query}"\nStatus: {color}{status}{RESET}'
                     )
                     if data:
                         report_lines.append(f"Data: {data}")
@@ -89,6 +91,6 @@ class CoreTester:
                 file.write(report)
         else:
             print(
-                "\n\n\n----------------------- Test Report -----------------------\n\n"
+                "\n----------------------- Test Report -----------------------\n\n"
             )
             print(report)

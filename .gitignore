@@ -1,0 +1,4 @@
+/.ruff_cache
+/chinook.db
+/tests.zip
+/__pycache__

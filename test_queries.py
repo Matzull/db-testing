@@ -1,24 +1,24 @@
 test_queries = {
-    # Verificar si una tabla está vacía
+    # Check if a table is empty
     "empty_table": [
         "SELECT * FROM {table} WHERE NOT EXISTS (SELECT * FROM {table})",
         {},
     ],
-    # Contar filas donde una columna específica no es nula
+    # Count the number of rows in a table
     "count_non_null": ["SELECT COUNT(*) FROM {table} WHERE {column} IS NOT NULL", {}],
-    # Verificar si una columna específica contiene algún valor nulo
+    # Verify that a column has no null values
     "has_null": ["SELECT * FROM {table} WHERE {column} IS NULL", {}],
-    # Contar filas que cumplen una condición específica
+    # Count the number of rows that match a specific value
     "count_condition": [
         "SELECT COUNT(*) FROM {table} WHERE {column} = {value}",
         {"value": "Enter the value to match:"},
     ],
-    # Verificar la existencia de un valor específico en una columna
+    # Verify that a column has a specific value
     "value_exists": [
         "SELECT * FROM {table} WHERE {column} = '{value}'",
         {"value": "Enter the value to check for existence:"},
     ],
-    # Contar filas que están por debajo o por encima de un valor específico
+    # Count the number of rows that are less than a specific value
     "count_less_than": [
         "SELECT COUNT(*) FROM {table} WHERE {column} < {value}",
         {"value": "Enter the upper limit value:"},
@@ -27,7 +27,7 @@ test_queries = {
         "SELECT COUNT(*) FROM {table} WHERE {column} > {value}",
         {"value": "Enter the lower limit value:"},
     ],
-    # Verificar si una columna específica contiene solo valores únicos
+    # Verify that a column has a unique values
     "unique_values": [
         "SELECT {column}, COUNT(*) FROM {table} GROUP BY {column} HAVING COUNT(*) > 1",
         {},

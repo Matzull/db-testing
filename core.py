@@ -3,7 +3,6 @@ from db_connection import Connection
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor
 
-
 class CoreTester:
     def __init__(self, db_url):
         self.connection = Connection(db_url)
@@ -31,8 +30,8 @@ class CoreTester:
 
     def run_tests(self, verbose=False):
         all_passed = True
-
-        def run_test(table, queries):
+        for table, queries in tqdm(self.test_queries.items()):
+            self.test_results[table] = []
             for query in queries:
                 if verbose:
                     print(f"Running test for {table}: {query}")
@@ -48,30 +47,24 @@ class CoreTester:
                     self.test_results[table].append(
                         (formatted_query, "Failed", result, exception)
                     )
-                    return False
+                    all_passed = False
                 else:
                     # Test passed if result is empty
                     self.test_results[table].append((formatted_query, "Passed", [], 0))
-                    return True
-
-        with ThreadPoolExecutor() as executor:
-            futures = []
-
-            for table, queries in self.test_queries.items():
-                self.test_results[table] = []
-                futures.append(executor.submit(run_test, table, queries))
-
-            for future in futures:
-                if not future.result():
-                    all_passed = False
-
         return all_passed
+    
 
-    def generate_report(self, to_file=False, verbose=False):
-        RED = "\033[91m"
-        GREEN = "\033[92m"
-        RESET = "\033[0m"
-        BOLD = "\033[1m"
+    def generate_report(self, file=None, verbose=False):
+        if file is None:
+            RED = "\033[91m"
+            GREEN = "\033[92m"
+            RESET = "\033[0m"
+            BOLD = "\033[1m"
+        else:
+            RED = ""
+            GREEN = ""
+            RESET = ""
+            BOLD = ""
 
         report_lines = []
         total_passed = 0
@@ -91,16 +84,16 @@ class CoreTester:
                     color = GREEN if status == "Passed" else RED
                     test_number = query.split(" ")[2]
                     query = query.split("\n")[1]
-
+                    
                     if data:
                         table_report.append(
-                            f'Test {test_number}{RESET}: "{failed_query} {RED}{status}"\n{RESET}'
+                            f'Test {test_number}{RESET}: "{query} {RED}{status}"\n{RESET}'
                         )
                         table_report.append(f"Data: {data}")
                     else:
                         table_report.append(
-                            f'Test Query: {test_number}\nQuery: "{query}"\nStatus: {color}{status}{RESET}'
-                        )
+                        f'Test Query: {test_number}\nQuery: "{query}"\nStatus: {color}{status}{RESET}'
+                    )
                     table_report.append("")
             else:
                 for query, status, data, ex in results:
@@ -118,13 +111,13 @@ class CoreTester:
                 tmp = report_lines
                 report_lines = table_report
                 report_lines.extend(tmp)
-
+                
         report_lines.append(
-            f"{BOLD}Total tests runned: {total_failed + total_passed} Total tests Passed: {GREEN}{total_passed}{RESET}{BOLD}, Total tests Failed: {RED}{total_failed}{RESET}"
-        )
+                f"{BOLD}Total tests runned: {total_failed + total_passed} Total tests Passed: {GREEN}{total_passed}{RESET}{BOLD}, Total tests Failed: {RED}{total_failed}{RESET}"
+            )
         report = "\n".join(report_lines)
-        if to_file:
-            with open("test_report.txt", "w") as file:
+        if file is not None:
+            with open(f"{file}.txt", "w") as file:
                 file.write(report)
         else:
             print("\n----------------------- Test Report -----------------------\n\n")

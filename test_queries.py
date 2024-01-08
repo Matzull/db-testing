@@ -21,11 +21,11 @@ test_queries = {
     # Count the number of rows that are less than a specific value
     "count_less_than": [
         "SELECT COUNT(*) FROM {table} WHERE {column} < {value}",
-        {"value": "Enter the upper limit value:"},
+        {"value": "Enter the limit value:"},
     ],
     "count_greater_than": [
         "SELECT COUNT(*) FROM {table} WHERE {column} > {value}",
-        {"value": "Enter the lower limit value:"},
+        {"value": "Enter the limit value:"},
     ],
     # Verify that a column has a unique values
     "unique_values": [

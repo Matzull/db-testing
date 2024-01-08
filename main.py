@@ -1,6 +1,6 @@
 import argparse
 from config import database_url
-from test_builder_gui import SqlTestBuilderInteractive
+from test_builder import SqlTestBuilderInteractive
 from core import CoreTester
 
 
@@ -10,7 +10,6 @@ def main():
         description="Database Testing Tool - A utility for building, running tests, and generating reports for databases.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-
     # Adding arguments
     parser.add_argument(
         "--builder",
@@ -34,6 +33,14 @@ def main():
         action="store_true",
         help="Enable verbose output for more detailed information.",
     )
+    parser.add_argument(
+        "--file",
+        type=str,
+        default=None,
+        help="Specify an output file for the test report.",
+    )
+    
+    
 
     # Parse arguments
     args = parser.parse_args()
@@ -45,14 +52,13 @@ def main():
     if args.builder:
         print("Running test builder...")
         builder = SqlTestBuilderInteractive(database_url)
-        builder.create_tests()
+        builder.create_tests(gui=True)
 
     # Create CoreTester instance
     tester = CoreTester(database_url)
 
     # Execute tests if --run_tests is specified
     if args.run_tests:
-        print("Is verbose:", args.verbose)
         print("Running tests...")
         success = tester.run_tests(verbose=args.verbose)
 
@@ -60,7 +66,7 @@ def main():
     if args.report:
         print("Generating test report...")
         print("\033[2J\033[H", end="")
-        tester.generate_report(verbose=args.verbose)
+        tester.generate_report(verbose=args.verbose, file=args.file)
 
     if not success:
         raise Exception("Tests failed.")

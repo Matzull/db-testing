@@ -13,14 +13,16 @@ class SqlTestBuilderInteractive:
 
     def get_tables(self):
         return self.connection.execute_query(
-            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND LEFT(table_name, 4) = 'app_' ORDER BY table_name"
+            #"SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND LEFT(table_name, 4) = 'app_' ORDER BY table_name"
+             "SELECT name FROM sqlite_master WHERE type='table';"
         )
 
     def get_columns(self, table_name):
         result = self.connection.execute_query(
-            f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'"
+            #f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'"
+            f"PRAGMA table_info('{table_name}');"
         )
-        return [row[0] for row in result]
+        return [row[1] for row in result]
 
     def select_table(self):
         tables = self.get_tables()
@@ -92,7 +94,7 @@ class SqlTestBuilderInteractive:
         def show_hide_test_details(event):
             selected_test_type_value = test_combobox.current()
             if selected_test_type_value == 0:  # Cambia "Custom" al valor deseado
-                value_label.config(text = "my_text")
+                value_label.config(text = "Enter value:")
                 value_label.grid(row=table_row + 3, column=3, sticky=tk.W)
                 test_details_entry.grid(row=table_row + 4, column=3, columnspan=2, pady=10)
                 add_value_test_button.grid(row=table_row + 5, column=3, columnspan=2)
@@ -160,6 +162,10 @@ class SqlTestBuilderInteractive:
         test_combobox.bind("<<ComboboxSelected>>", show_hide_test_details)
 
         # Campo de texto para ingresar detalles del test (inicialmente oculto)
+        # dict_values = {}
+        # def handle_add_value_test(event):
+        #     dict_values = list(test_queries.values())[test_type][1].items()[question_index] = test_details_entry.get()
+        #     question_index += 1
         
         value_label = ttk.Label(frame, text="")
         value_label.grid_remove()
@@ -167,6 +173,7 @@ class SqlTestBuilderInteractive:
         test_details_entry = ttk.Entry(frame)
         test_details_entry.grid_remove()
 
+        question_index = 0
         add_value_test_button = ttk.Button(frame, text="Add value", command=None)
         add_value_test_button.grid_remove()
         

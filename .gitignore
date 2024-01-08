@@ -1,5 +1,5 @@
 /.ruff_cache
-/chinook.db
+/chinook.sqlite
 /tests.zip
 /__pycache__
 config.py

@@ -49,7 +49,7 @@ def main():
     print("\033[2J\033[H", end="")
 
     # Execute the test builder if --builder is specified
-    if args.builder:
+    if True:#args.builder:
         print("Running test builder...")
         builder = SqlTestBuilderInteractive(database_url)
         builder.create_tests(gui=True)

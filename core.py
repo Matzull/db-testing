@@ -1,6 +1,7 @@
 import os
 from db_connection import Connection
 from tqdm import tqdm
+from concurrent.futures import ThreadPoolExecutor
 
 
 class CoreTester:
@@ -28,11 +29,13 @@ class CoreTester:
                 print(query)
             print("")
 
-    def run_tests(self):
-        for table, queries in tqdm(self.test_queries.items()):
-            self.test_results[table] = []
+    def run_tests(self, verbose=False):
+        all_passed = True
+
+        def run_test(table, queries):
             for query in queries:
-                print(f"Running test for {table}: {query}")
+                if verbose:
+                    print(f"Running test for {table}: {query}")
                 formatted_query = query.format(table=table)
                 try:
                     exception = False
@@ -45,9 +48,24 @@ class CoreTester:
                     self.test_results[table].append(
                         (formatted_query, "Failed", result, exception)
                     )
+                    return False
                 else:
                     # Test passed if result is empty
                     self.test_results[table].append((formatted_query, "Passed", [], 0))
+                    return True
+
+        with ThreadPoolExecutor() as executor:
+            futures = []
+
+            for table, queries in self.test_queries.items():
+                self.test_results[table] = []
+                futures.append(executor.submit(run_test, table, queries))
+
+            for future in futures:
+                if not future.result():
+                    all_passed = False
+
+        return all_passed
 
     def generate_report(self, to_file=False, verbose=False):
         RED = "\033[91m"
@@ -56,11 +74,16 @@ class CoreTester:
         BOLD = "\033[1m"
 
         report_lines = []
+        total_passed = 0
+        total_failed = 0
         for table, results in self.test_results.items():
+            table_report = []
             passed = sum(1 for _, status, _, _ in results if status == "Passed")
+            total_passed += passed
             failed = sum(1 for _, status, _, _ in results if status == "Failed")
-            report_lines.append(f"{BOLD}Report for table: {table}{RESET}")
-            report_lines.append(
+            total_failed += failed
+            table_report.append(f"{BOLD}Report for table: {table}{RESET}")
+            table_report.append(
                 f"Tests Passed: {GREEN}{passed}{RESET}, Tests Failed: {RED}{failed}{RESET}"
             )
             if verbose:
@@ -68,29 +91,42 @@ class CoreTester:
                     color = GREEN if status == "Passed" else RED
                     test_number = query.split(" ")[2]
                     query = query.split("\n")[1]
-                    report_lines.append(
-                        f'Test Query: {test_number}\nQuery: "{query}"\nStatus: {color}{status}{RESET}'
-                    )
+
                     if data:
-                        report_lines.append(f"Data: {data}")
-                    report_lines.append("")
+                        table_report.append(
+                            f'Test {test_number}{RESET}: "{failed_query} {RED}{status}"\n{RESET}'
+                        )
+                        table_report.append(f"Data: {data}")
+                    else:
+                        table_report.append(
+                            f'Test Query: {test_number}\nQuery: "{query}"\nStatus: {color}{status}{RESET}'
+                        )
+                    table_report.append("")
             else:
                 for query, status, data, ex in results:
                     if status == "Failed":
                         test_number = query.split(" ")[2]
                         failed_query = query.split("\n")[1]
-                        report_lines.append(
-                            f'Failed test {test_number}\nQuery: "{failed_query}"\nStatus: {RED}{status}{RESET}'
+                        table_report.append(
+                            f'Test {test_number}{RESET}: "{failed_query}" {RED}{status}\n{RESET}'
                         )
                         if data and ex:
-                            report_lines.append(f"Data: {data}")
+                            table_report.append(f"Data: {data}")
+            if failed:
+                report_lines.extend(table_report)
+            else:
+                tmp = report_lines
+                report_lines = table_report
+                report_lines.extend(tmp)
 
+        report_lines.append(
+            f"{BOLD}Total tests runned: {total_failed + total_passed} Total tests Passed: {GREEN}{total_passed}{RESET}{BOLD}, Total tests Failed: {RED}{total_failed}{RESET}"
+        )
         report = "\n".join(report_lines)
         if to_file:
             with open("test_report.txt", "w") as file:
                 file.write(report)
         else:
-            print(
-                "\n----------------------- Test Report -----------------------\n\n"
-            )
+            print("\n----------------------- Test Report -----------------------\n\n")
             print(report)
+            print("\n-----------------------------------------------------------\n\n")

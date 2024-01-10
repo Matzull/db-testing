@@ -12,35 +12,38 @@ def main():
     )
     # Adding arguments
     parser.add_argument(
+        "-b",
         "--builder",
         action="store_true",
         help="Run the test builder to create new tests.",
     )
     parser.add_argument(
-        "--run_tests",
-        action="store_true",
+        "-t",
+        "--run-tests",
+        action="store",
         default=True,
         help="Execute tests against the database.",
     )
     parser.add_argument(
+        "-r",
         "--report",
-        action="store_true",
+        action="store",
         default=True,
         help="Generate and display a test report.",
     )
     parser.add_argument(
+        "-v",
         "--verbose",
         action="store_true",
         help="Enable verbose output for more detailed information.",
     )
     parser.add_argument(
+        "-f",
         "--file",
         type=str,
         default=None,
         help="Specify an output file for the test report.",
     )
-    
-    
 
     # Parse arguments
     args = parser.parse_args()
@@ -49,7 +52,7 @@ def main():
     print("\033[2J\033[H", end="")
 
     # Execute the test builder if --builder is specified
-    if True:#args.builder:
+    if True:  # args.builder:
         print("Running test builder...")
         builder = SqlTestBuilderInteractive(database_url)
         builder.create_tests(gui=True)

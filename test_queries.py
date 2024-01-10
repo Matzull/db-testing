@@ -11,7 +11,7 @@ test_queries = {
     # Count the number of rows that match a specific value
     "count_condition": [
         "SELECT COUNT(*) FROM {table} WHERE {column} = {value}",
-        {"value": "Enter the value to match:", "column": "Enter the column to match:"}
+        {"value": "Enter the value to match:"},
     ],
     # Verify that a column has a specific value
     "value_exists": [

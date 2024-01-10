@@ -2,7 +2,8 @@ import os
 from db_connection import Connection
 import re
 from test_queries import test_queries
-from gui_builder import GUIBuilder
+from custom_gui_builder import GUIBuilder
+
 
 class SqlTestBuilderInteractive:
     def __init__(self, db_url):
@@ -57,10 +58,10 @@ class SqlTestBuilderInteractive:
             file.write(self.last_test + ";\n")
 
         # tables = list(map(lambda x: x[0], self.get_tables()))
-    
+
     def create_tests(self, gui=True):
         if gui:
-            gui_builder = GUIBuilder(self.connection)
+            gui_builder = GUIBuilder(self, self.connection)
             gui_builder.create_tests_gui()
             return
         while True:
@@ -72,7 +73,11 @@ class SqlTestBuilderInteractive:
                 print(f"{i}. {test}")
             test_type = int(input("Enter test type: \n"))
             self.get_extra_values(test_queries[test_type - 1])
-            self.add_test(test_type - 1, table, column, )
+            self.add_test(
+                test_type - 1,
+                table,
+                column,
+            )
             if input("Add another test? (y/n): ") == "n":
                 break
             else:
@@ -105,11 +110,11 @@ class SqlTestBuilderInteractive:
         query_template = list(test_queries.values())[test_type]
 
         query = query_template[0]
-            
+
         query = self.format(query, "table", table)
         query = self.format(query, "column", column)
 
-        query = self.build_query(self, query, dict_values)
+        query = self.build_query(query, dict_values)
 
         if table in self.tests:
             self.tests[table].append(query)

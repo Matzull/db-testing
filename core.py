@@ -1,7 +1,7 @@
 import os
 from db_connection import Connection
 from tqdm import tqdm
-from concurrent.futures import ThreadPoolExecutor
+
 
 class CoreTester:
     def __init__(self, db_url):
@@ -11,6 +11,9 @@ class CoreTester:
         self.test_results = {}
 
     def load_queries_from_dir(self, directory):
+        if not os.path.exists(directory):
+            print(f"Directory {directory} does not exist.")
+            return
         for table in os.listdir(directory):
             table_path = os.path.join(directory, table)
             if os.path.isdir(table_path):
@@ -52,7 +55,6 @@ class CoreTester:
                     # Test passed if result is empty
                     self.test_results[table].append((formatted_query, "Passed", [], 0))
         return all_passed
-    
 
     def generate_report(self, file=None, verbose=False):
         if file is None:
@@ -84,7 +86,7 @@ class CoreTester:
                     color = GREEN if status == "Passed" else RED
                     test_number = query.split(" ")[2]
                     query = query.split("\n")[1]
-                    
+
                     if data:
                         table_report.append(
                             f'Test {test_number}{RESET}: "{query} {RED}{status}"\n{RESET}'
@@ -92,8 +94,8 @@ class CoreTester:
                         table_report.append(f"Data: {data}")
                     else:
                         table_report.append(
-                        f'Test Query: {test_number}\nQuery: "{query}"\nStatus: {color}{status}{RESET}'
-                    )
+                            f'Test Query: {test_number}\nQuery: "{query}"\nStatus: {color}{status}{RESET}'
+                        )
                     table_report.append("")
             else:
                 for query, status, data, ex in results:
@@ -111,10 +113,10 @@ class CoreTester:
                 tmp = report_lines
                 report_lines = table_report
                 report_lines.extend(tmp)
-                
+
         report_lines.append(
-                f"{BOLD}Total tests runned: {total_failed + total_passed} Total tests Passed: {GREEN}{total_passed}{RESET}{BOLD}, Total tests Failed: {RED}{total_failed}{RESET}"
-            )
+            f"{BOLD}Total tests runned: {total_failed + total_passed} Total tests Passed: {GREEN}{total_passed}{RESET}{BOLD}, Total tests Failed: {RED}{total_failed}{RESET}"
+        )
         report = "\n".join(report_lines)
         if file is not None:
             with open(f"{file}.txt", "w") as file:

@@ -1,11 +1,11 @@
 import os
-from db_connection import Connection
+from db_connection import DB_DAO
 from tqdm import tqdm
 
 
 class CoreTester:
     def __init__(self, db_url):
-        self.connection = Connection(db_url)
+        self.connection = DB_DAO(db_url)
         self.test_queries = {}
         self.load_queries_from_dir("tests")
         self.test_results = {}
@@ -115,7 +115,7 @@ class CoreTester:
                 report_lines.extend(tmp)
 
         report_lines.append(
-            f"{BOLD}Total tests runned: {total_failed + total_passed} Total tests Passed: {GREEN}{total_passed}{RESET}{BOLD}, Total tests Failed: {RED}{total_failed}{RESET}"
+            f"{BOLD}Total tests runned: {total_failed + total_passed} | Total tests Passed: {GREEN}{total_passed}{RESET}{BOLD} | Total tests Failed: {RED}{total_failed}{RESET}"
         )
         report = "\n".join(report_lines)
         if file is not None:

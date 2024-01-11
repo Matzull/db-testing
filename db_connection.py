@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
 
 
-class Connection:
+class DB_DAO:
     def __init__(self, db_url, is_postgres=True):
         self.db_url = db_url
         self.is_postgres = is_postgres

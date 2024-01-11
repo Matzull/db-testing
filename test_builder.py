@@ -1,13 +1,13 @@
 import os
-from db_connection import Connection
+from db_connection import DB_DAO
 import re
 from test_queries import test_queries
-from custom_gui_builder import GUIBuilder
+from gui_builder import GUIBuilder
 
 
 class SqlTestBuilderInteractive:
     def __init__(self, db_url):
-        self.connection = Connection(db_url, False)
+        self.connection = DB_DAO(db_url, False)
         self.tests = {}
 
     def select_table(self):

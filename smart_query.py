@@ -1,4 +1,4 @@
-from db_connection import Connection
+from db_connection import DB_DAO
 from test_queries import test_queries
 from config import api_openai_key, database_url
 import json
@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 class SmartQuery:
     def __init__(self, db_url):
-        self.connection = Connection(db_url)
+        self.connection = DB_DAO(db_url)
 
     def get_schema(self):
         schema = []
@@ -39,9 +39,9 @@ class SmartQuery:
                 ORDER BY ordinal_position;
             """
             )
-            for column in columns[:-1]:
-                schema.append(f"{column[0]}, ")
-            schema.append(f"{columns[-1][0]}\n")
+            #for column in columns[:-1]:
+            #    schema.append(f"{column[0]}, ")
+            #schema.append(f"{columns[-1][0]}\n")
 
             # Get foreign keys
             schema.append("  Foreign keys:\n")
@@ -109,7 +109,7 @@ class SmartQuery:
             "messages": [
                 {
                     "role": "system",
-                    "content": f"You are an SQL expert. You are given this database schema {schema[1]} Your task is to write error checking queries that must return 0 rows if no error was found and the rows that contain errors otherwise",
+                    "content": f"You are an SQL expert. You are given this database schema {schema[1]} Your task is to write error checking queries that must return 0 rows if no error was found and the rows that contain errors otherwise you must consider the relations between the tables and the foreign keys.",
                 },
                 {
                     "role": "user",

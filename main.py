@@ -71,6 +71,7 @@ def main():
         print("\033[2J\033[H", end="")
         tester.generate_report(verbose=args.verbose, file=args.file)
 
+    #Necessary for airflow to know if tests passed or failed
     if not success:
         raise Exception("Tests failed.")
 
